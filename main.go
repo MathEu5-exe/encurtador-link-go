@@ -18,12 +18,12 @@ type Requisicao struct {
 }
 
 // db é a nossa ligação global à base de dados.
-// Usar uma variável global aqui facilita o acesso nas funções de rota.
+// Usar uma variável global ajuda a evitar abrir e fechar a base de dados a cada requisição.
 var db *sql.DB
 
 func initDB() {
 	var err error
-	// Abre a ligação (se o ficheiro encurtador.db não existir, o Go cria-o)
+	// Abre a ligação à base de dados, e se não tiver, o próprio Go cria uma base dados vazia
 	db, err = sql.Open("sqlite", "./encurtador.db")
 	if err != nil {
 		log.Fatal("Erro ao abrir base de dados: ", err)
@@ -87,7 +87,7 @@ func handleEncurtar(w http.ResponseWriter, r *http.Request) {
 	codigo := gerarCodigo()
 
 	// 4. Inserimos no banco de dados SQLite
-	// Os sinais de interrogação (?) previnem SQL Injection
+	// Os sinais de interrogação (?) previnem SQL Injection (ataques de injeção de SQL)
 	_, err = db.Exec("INSERT INTO urls (url_original, codigo_curto) VALUES (?, ?)", req.URL, codigo)
 	if err != nil {
 		http.Error(w, "Erro ao salvar no banco de dados", http.StatusInternalServerError)
@@ -111,7 +111,7 @@ func handleRedirect(w http.ResponseWriter, r *http.Request) {
 
 	// Se o utilizador aceder apenas a localhost:8080/, mostramos uma mensagem simples
 	if codigo == "" {
-		fmt.Fprintf(w, "Bem-vindo ao Encurtador de Links em Go!")
+		http.ServeFile(w, r, "index.html")
 		return
 	}
 

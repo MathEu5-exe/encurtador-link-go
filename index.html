@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encurtador de Links em Go</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md text-center">
+        <h1 class="text-2xl font-bold mb-6 text-slate-800">Encurtador de Links</h1>
+        
+        <input type="url" id="urlInput" placeholder="Cole sua URL longa aqui (ex: https://...)" 
+               class="w-full p-3 border border-slate-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        
+        <button onclick="encurtarLink()" 
+                class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition duration-200">
+            Encurtar
+        </button>
+
+        <!-- Área escondida que só aparece quando o link é gerado -->
+        <div id="resultadoArea" class="mt-6 hidden p-4 bg-blue-50 rounded-lg border border-blue-100">
+            <p class="text-sm text-slate-600 mb-1">Seu link encurtado:</p>
+            <a id="linkCurto" href="#" target="_blank" class="text-blue-600 font-bold text-lg hover:underline break-all"></a>
+        </div>
+        
+        <p id="erroArea" class="mt-4 text-red-500 text-sm hidden font-medium"></p>
+    </div>
+
+    <script>
+        async function encurtarLink() {
+            const url = document.getElementById('urlInput').value;
+            const resultadoArea = document.getElementById('resultadoArea');
+            const erroArea = document.getElementById('erroArea');
+            const linkCurto = document.getElementById('linkCurto');
+
+            // Limpa mensagens anteriores
+            resultadoArea.classList.add('hidden');
+            erroArea.classList.add('hidden');
+
+            if (!url.startsWith('http')) {
+                erroArea.textContent = "A URL deve começar com http:// ou https://";
+                erroArea.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                // Faz a requisição POST para o seu backend em Go
+                const resposta = await fetch('/encurtar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+
+                if (!resposta.ok) throw new Error("Erro ao processar o link no servidor.");
+
+                const dados = await resposta.json();
+                
+                // Exibe o link na tela
+                linkCurto.href = dados.url_encurtada;
+                linkCurto.textContent = dados.url_encurtada;
+                resultadoArea.classList.remove('hidden');
+            } catch (erro) {
+                erroArea.textContent = erro.message;
+                erroArea.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
