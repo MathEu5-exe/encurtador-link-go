@@ -28,6 +28,4 @@ Este projeto foi um excelente laboratório para consolidar conceitos essenciais 
    ```bash
    git clone [https://github.com/SEU-USUARIO/encurtador-links-go.git](https://github.com/SEU-USUARIO/encurtador-links-go.git)
 
-1. Clone o repositório:
-   ```bash
-   git clone [https://github.com/SEU-USUARIO/encurtador-links-go.git](https://github.com/SEU-USUARIO/encurtador-links-go.git)
+
